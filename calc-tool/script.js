@@ -32,3 +32,14 @@ const collectRecords = () => {
   }
   return list;
 };
+
+const cleanRecords = (list) => list.filter(r => r.score >= 0 && r.score <= 100);
+
+const summarize = (list) => {
+  if (list.length === 0) return null;
+  const total = list.reduce((sum, r) => sum + r.score, 0);
+  const avg = (total / list.length).toFixed(2);
+  const max = list.reduce((a, b) => a.score >= b.score ? a : b);
+  const failedNames = list.filter(r => r.score < 60).map(r => r.name);
+  return { count: list.length, avg, max, failedNames };
+};
