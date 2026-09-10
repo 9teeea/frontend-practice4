@@ -43,3 +43,39 @@ const summarize = (list) => {
   const failedNames = list.filter(r => r.score < 60).map(r => r.name);
   return { count: list.length, avg, max, failedNames };
 };
+
+const render = (rawList, validList, stats) => {
+  const out = document.getElementById('output');
+  if (!stats) {
+    out.innerHTML = '<p>没有有效成绩可统计</p>';
+    return;
+  }
+  const items = validList.map(r => `<li>${r.name}：${r.score}分</li>`).join('');
+  const dropped = rawList.length - validList.length;
+  out.innerHTML = `
+    <h2>统计结果</h2>
+    <p>录入 ${rawList.length} 条，有效 ${stats.count} 条${dropped ? `（已过滤 ${dropped} 条非法）` : ''}</p>
+    <p>平均分：${stats.avg}</p>
+    <p>最高分：${stats.max.score}分（${stats.max.name}）</p>
+    <p>不及格：${stats.failedNames.join('、') || '无'}</p>
+    <h3>有效成绩清单</h3>
+    <ul>${items}</ul>
+  `;
+};
+
+const main = () => {
+  try {
+    const raw = collectRecords();
+    const valid = cleanRecords(raw);
+    const stats = summarize(valid);
+    console.log('原始录入：', raw);
+    console.log('合法成绩：', valid);
+    console.log('统计：', stats);
+    render(raw, valid, stats);
+  } catch (err) {
+    console.error('运行出错：', err.message);
+    document.getElementById('output').innerHTML = '<p>程序出错：' + err.message + '</p>';
+  }
+};
+
+document.getElementById('start').addEventListener('click', main);
